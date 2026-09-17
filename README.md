@@ -6,8 +6,21 @@ This project required an Arduino Nano, an HCSR04 Sensor, a DC motor with a fan a
 
 ## Known Issues
 
-- **Reset on battery power:** when running on the battery pack alone (not USB), the Nano resets as soon as the sensor detects an object and the motor should activate. Suspect this is a brownout reset caused by voltage sag when the motor draws current — still debugging.
-- **Wiring reliability:** since the whole rig is constantly moving, wires occasionally work loose, which causes intermittent component failures. 
+- **Reset on battery power:** when running on the battery pack alone (not USB), the Nano resets as soon as the sensor detects an object instead of activating the fan or staying in place. Suspect this is due to the motor pulling current somehow, maybe another electrical noise issue, but I am still debugging and testing while researching for a new project.
 
-# What I Have Learned
-I learned so much from and for this project. Firstly I did attempt to learn better cable management via buying smaller jumper wires. Secondly I bought the Arduino Nano for this project so I could make this project more mobile, so I learned how to use the Nano. Thirdly issues with electrical noise was a massive issue, and it caused bad readings from the sensor, so I had to learn what electrical noise is in the first place. This resulted in me placing capacitors throughout the project, and taking a median reading from the HCSR04 sensor to weed out bad readings. This also made me realize time management in code was actually important. At first if the servo was moving too fast the reading from the sensor was ruined because the servo would move before the sensor's ultrasonic waves bounced back, so I casually just put a delay(300) before the servo moved. The issue is now that I take 7 readings to make one accurate reading and each one takes 60 milliseconds at maximum, this can add up to half a second already. Any other delays that were put into the code without much thought would make this project painfully slow, so I decided to keep all my delays inside the function, when the readings are actually being created. I think the biggest thing I learned from this was how painful it is to power all of this. I thought the power supply my Arduino Kit came with could easily power all of this, but it barely could handle 700 mA, while this project needed close to 1.5A. I had to learn what a buck converter is, then get a battery pack to power the buck converter, then solder that pack to the buck converter, and then solder the buck converter to some jumper wires. I thought a simple in breadboard power supply could regulate the whole project. 
+## Planned Improvements
+
+- Replace the pill-bottle HC-SR04 mount with a 3D-printed 4-pillar stand that has room for the DC motor underneath (now that I have TAMU's 3D printers available)
+- Better cable management. Move to smaller-gauge jumper wires to reduce the wire-looseness issue.
+- Resolve the battery-power reset bug above maybe this is due to the power supply, so I'll need to find a way to test it, possibly just a simple code from the Arduino Uno which will use an analog read, to make sure the power supply does not randomly stop powering the components. 
+
+
+## What I Learned
+
+**Mobility & the Nano:** I chose the Arduino Nano specifically to make this project portable, which meant learning how to work with the Nano instead of the Uno I used before.
+
+**Electrical noise:** Bad sensor readings turned out to be caused by electrical noise, which I had to learn about from scratch. The fix was two things, placing capacitors throughout the circuit to handle the noise directly, and taking a median of multiple HC-SR04 readings to throw out noisy readings that still were caused despite capacitors.
+
+**Timing matters:** Early on, moving the servo too fast would ruin the sensor reading, since the servo moved before the ultrasonic pulse had time to bounce back. My first fix was just a flat `delay(300)` before every servo move. But taking 7 readings per measurement (at up to 60ms each) already adds up to nearly half a second, so any other careless delays elsewhere in the code made the whole project too slow. I ended up keeping all delays scoped inside the reading function itself, rather than scattered through the code.
+
+**Power delivery:** This was the biggest lesson. I assumed the power supply from my Arduino kit could handle everything, but it maxes out at around 700mA, but the full project draws close to 1.5A. That meant learning what a buck converter actually does, buying a battery pack to feed it, and soldering the battery pack to the buck converter and the buck converter to the two wires.
